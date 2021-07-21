@@ -30,6 +30,7 @@ public class Shooting : NetworkBehaviour
 	}
 	void Update()
 	{
+	//	Debug.Log(playerController.playerCamera.scaledPixelWidth + "                " + playerController.playerCamera.scaledPixelHeight);
 		if (!isLocalPlayer)
 			return;
 		if (Input.GetMouseButtonDown(0))
@@ -47,21 +48,21 @@ public class Shooting : NetworkBehaviour
 
 	public Vector2 Recoil()
 	{
-		float radius = sight.rect.height / 2;
+		float radius = (sight.rect.height / 2) * (playerController.playerCamera.scaledPixelHeight / 720f);
 		float Xcord = random.Next(-Mathf.CeilToInt(radius), Mathf.CeilToInt(radius));
 		int Y = Mathf.FloorToInt(Mathf.Sqrt(Mathf.Pow(radius, 2) - Mathf.Pow(Xcord, 2)));
 		float Ycord = random.Next(-Y, Y);
-		return new Vector2(Xcord + playerController.playerCamera.pixelWidth / 2, Ycord + playerController.playerCamera.pixelHeight / 2);
+		return new Vector2(Xcord + playerController.playerCamera.scaledPixelWidth / 2, Ycord + playerController.playerCamera.scaledPixelHeight / 2);
 	}
 
 	[Command]
 	public void CmdFire()
 	{
-		float radius = sight.rect.height / 2;
+		float radius = (sight.rect.height / 2)* (playerController.playerCamera.scaledPixelHeight / 720f);
 		float Xcord = random.Next(-Mathf.CeilToInt(radius), Mathf.CeilToInt(radius));
 		int Y = Mathf.FloorToInt(Mathf.Sqrt(Mathf.Pow(radius, 2) - Mathf.Pow(Xcord, 2)));
 		float Ycord = random.Next(-Y, Y);
-		Vector2 recoil =  new Vector2(Xcord + playerController.playerCamera.pixelWidth / 2, Ycord + playerController.playerCamera.pixelHeight / 2);
+		Vector2 recoil =  new Vector2(Xcord + playerController.playerCamera.scaledPixelWidth / 2, Ycord + playerController.playerCamera.scaledPixelHeight / 2);
 		Debug.Log(recoil +"        " + radius);
 		Ray ray = playerController.playerCamera.ScreenPointToRay(recoil);
 		Debug.DrawRay(ray.origin, ray.direction, Color.green, 3);

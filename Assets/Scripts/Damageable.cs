@@ -1,12 +1,15 @@
+using Mirror;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Damageable : MonoBehaviour
+public class Damageable : NetworkBehaviour
 {
     [SerializeField]
     private PartsOfBody _part;
     public Health _health;
+    
+    [ClientRpc]
     internal void HealthDamage(float damege)
     {
         switch (_part)

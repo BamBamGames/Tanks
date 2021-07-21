@@ -13,7 +13,7 @@ public class Bullet : NetworkBehaviour
 	void Start()
 	{
 
-
+		
 		DamagedBody();
 		transform.parent = null;
 	}
@@ -21,7 +21,9 @@ public class Bullet : NetworkBehaviour
 	void FixedUpdate()
 	{
 		transform.Translate(Bullettr * _bulletSpeed * Time.deltaTime);
+		
 		DamagedBody();
+		Destroy(transform.gameObject, 5);
 	}
 	public void DamagedBody()
 	{
