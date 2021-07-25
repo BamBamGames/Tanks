@@ -8,7 +8,4 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TankBattleField.unity
     guid: f449e09f0534cce48a0f159ed9b3fe12
-  - enabled: 0
-    path: Assets/Scenes/Scene_Lobby.unity
-    guid: 67b57078898803945ac8959157232456
   m_configObjects: {}

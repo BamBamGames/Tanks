@@ -13,14 +13,15 @@ public class Bullet : NetworkBehaviour
 	void Start()
 	{
 
-		
 		DamagedBody();
-		transform.parent = null;
 	}
-
+	private void Update()
+	{
+		Debug.Log(transform.position);
+	}
 	void FixedUpdate()
 	{
-		transform.Translate(Bullettr * _bulletSpeed * Time.deltaTime);
+	//	transform.Translate(Bullettr * _bulletSpeed * Time.deltaTime);
 		
 		DamagedBody();
 		Destroy(transform.gameObject, 5);

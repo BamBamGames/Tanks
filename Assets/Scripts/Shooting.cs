@@ -62,23 +62,25 @@ public class Shooting : NetworkBehaviour
 		float Xcord = random.Next(-Mathf.CeilToInt(radius), Mathf.CeilToInt(radius));
 		int Y = Mathf.FloorToInt(Mathf.Sqrt(Mathf.Pow(radius, 2) - Mathf.Pow(Xcord, 2)));
 		float Ycord = random.Next(-Y, Y);
-		Vector2 recoil =  new Vector2(Xcord + playerController.playerCamera.scaledPixelWidth / 2, Ycord + playerController.playerCamera.scaledPixelHeight / 2);
-		Debug.Log(recoil +"        " + radius);
+		Vector2 recoil	=  new Vector2(	Xcord + playerController.playerCamera.scaledPixelWidth / 2,
+										Ycord + playerController.playerCamera.scaledPixelHeight / 2);
+
 		Ray ray = playerController.playerCamera.ScreenPointToRay(recoil);
 		Debug.DrawRay(ray.origin, ray.direction, Color.green, 3);
 		if (Physics.Raycast(ray, out RaycastHit hit, 4000f))
 		{
 			_ray = hit.point - endOfGun.transform.position;
-			GameObject _bullet = Instantiate(bullet, endOfGun.transform.position, Quaternion.identity, transform);
+			GameObject _bullet = Instantiate(bullet, endOfGun.position, Quaternion.identity);
+			Debug.Log(endOfGun.position);
 			_bullet.GetComponent<Bullet>().Bullettr = _ray.normalized;
-			NetworkServer.Spawn(_bullet); 
+			NetworkServer.Spawn(_bullet, connectionToClient); 
 		}
 		else
 		{
 			_ray = ray.GetPoint(300) - endOfGun.transform.position;
 			GameObject _bullet = Instantiate(bullet, endOfGun.transform.position, Quaternion.identity, transform);
 			_bullet.GetComponent<Bullet>().Bullettr = _ray.normalized;
-			NetworkServer.Spawn(_bullet);
+			NetworkServer.Spawn(_bullet, connectionToClient);
 	    }
 	}
 }

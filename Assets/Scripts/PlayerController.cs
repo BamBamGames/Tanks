@@ -6,66 +6,48 @@ using Cinemachine;
 [RequireComponent(typeof(CharacterController), typeof(PlayerInputHandler))]
 public class PlayerController : NetworkBehaviour
 {
-	[SerializeField]
-	private float gravityDownForce = 20f;
-	[SerializeField]
-	private AudioListener audio;
-	[SerializeField]
-	private CinemachineVirtualCamera cinemachine;
-	[SerializeField]
-	private float sphereRadius;
-	[SerializeField]
-	private Transform sphere;
-	[Header("References")]
-	[Tooltip("Reference to the main camera used for the player")]
-	[SerializeField]
-	internal Camera playerCamera;
-	[SerializeField]
-	private Transform camTarget;
-	[SerializeField]
-	private Transform endOfGun;
-	[SerializeField]
-	private Transform startOfGun;
-	[SerializeField]
-	private Transform gun;
-	[SerializeField]
-	private LayerMask layerMask;
-	[SerializeField]
-	private float minCameraRotaation = -180;
-	[SerializeField]
-	private float maxCameraRotaation = 180;
-
 	[Header("Movement")]
-	public float maxSpeedOnGround = 10f;
-	public float movementSharpnessOnGround = 15;
-	public float maxSpeedInAir = 10f;
-	public float accelerationSpeedInAir = 25f;
-	public float sprintSpeedModifier = 10f;
-	public float rotationSpeed = 150.0f;
+	[SerializeField] private float gravityDownForce = 20f;
+	[SerializeField] private float maxSpeedOnGround = 10f;
+	[SerializeField] private float movementSharpnessOnGround = 15;
+	[SerializeField] private float maxSpeedInAir = 10f;
+	[SerializeField] private float accelerationSpeedInAir = 25f;
+	[SerializeField] private float sprintSpeedModifier = 10f;
+	[SerializeField] private float rotationSpeed = 150.0f;
+	[SerializeField] private Transform sphere;
 	[Range(0.1f, 1f)]
 	public float _rotationMultiplier = 0.4f;
+
+	[Header("Camera")]
+	[SerializeField] internal Camera playerCamera;
+	[SerializeField] private Transform camTarget;
+	[SerializeField] private float minCameraRotaation = -180;
+	[SerializeField] private float maxCameraRotaation = 180;
+
+	[Header("Gun")]
+	[SerializeField] private Transform endOfGun;
+	[SerializeField] private Transform startOfGun;
+	[SerializeField] private Transform gun;
+
 	[Header("Jump")]
 	public float jumpForce = 9f;
+
+	[Header("LayerMask")]
+	[SerializeField] private LayerMask layerMask;
 
 	public Vector3 characterVelocity { get; set; }
 	public bool isGrounded { get; private set; }
 	public bool hasJumpedThisFrame { get; private set; }
 	public bool isDead { get; private set; }
 	public bool isCrouching { get; private set; }
-	public float RotationMultiplier
-	{
-		get
-		{
-			return 1f;
-		}
-	}
+	
+	public float RotationMultiplier = 1f;
 	protected Ray ray = new Ray();
 	PlayerInputHandler m_InputHandler;
 	CharacterController m_Controller;
 	Shooting m_Shooting;
 	Vector3 m_GroundNormal;
 	float m_LastTimeJumped = 0f;
-	public float cameraFildOfView = 10f;
 	public float groundCheckDistance;
 	private float CamTargetXRot = 0;
 	const float k_JumpGroundingPreventionTime = 0.2f;
@@ -95,7 +77,8 @@ public class PlayerController : NetworkBehaviour
 				Cursor.lockState = CursorLockMode.None;
 				Cursor.visible = true;
 				isVisible = true;
-			}else 
+			}
+			else
 			{
 				Cursor.lockState = CursorLockMode.Locked;
 				Cursor.visible = false;
@@ -105,17 +88,13 @@ public class PlayerController : NetworkBehaviour
 	}
 	void GroundCheck()
 	{
-		// Make sure that the ground check distance while already in air is very small, to prevent suddenly snapping to ground
 		float chosenGroundCheckDistance = isGrounded ? (m_Controller.skinWidth + groundCheckDistance) : k_GroundCheckDistanceInAir;
 
-		// reset values before the ground check
 		isGrounded = false;
 		m_GroundNormal = Vector3.up;
 
-		// only try to detect ground if it's been a short amount of time since last jump; otherwise we may snap to the ground instantly after we try jumping
 		if (Time.time >= m_LastTimeJumped + k_JumpGroundingPreventionTime)
 		{
-			// if we're grounded, collect info about the ground normal with a downward capsule cast representing our character capsule
 			if (Physics.CapsuleCast(GetCapsuleBottomHemisphere(), GetCapsuleTopHemisphere(m_Controller.height), m_Controller.radius, Vector3.down, out RaycastHit hit, chosenGroundCheckDistance, layerMask))
 			{
 				m_GroundNormal = hit.normal;
@@ -134,16 +113,13 @@ public class PlayerController : NetworkBehaviour
 	}
 	private void HandleCharacterMovement()
 	{
-
 		{
 			transform.Rotate(new Vector3(0, Input.GetAxis("Mouse X") * rotationSpeed * Time.deltaTime, 0));
 			CamTargetXRot += -Input.GetAxis("Mouse Y") * rotationSpeed * Time.deltaTime;
 			CamTargetXRot = Mathf.Clamp(CamTargetXRot, minCameraRotaation, maxCameraRotaation);
 			camTarget.localEulerAngles = new Vector3(CamTargetXRot, camTarget.localEulerAngles.y);
 		}
-
 		{
-
 			float speedModifier = 1f;
 			Vector3 worldspaceMoveInput = transform.TransformVector(m_InputHandler.GetMoveInput());
 			if (m_Controller.isGrounded)
@@ -208,7 +184,7 @@ public class PlayerController : NetworkBehaviour
 	private void GunController()
 	{
 		RaycastHit hit;
-		Ray ray = m_Shooting.isFiring ? playerCamera.ScreenPointToRay(new Vector2(500,500)) : new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+		Ray ray = m_Shooting.isFiring ? playerCamera.ScreenPointToRay(m_Shooting.Recoil()) : new Ray(playerCamera.transform.position, playerCamera.transform.forward);
 
 		Debug.DrawRay(playerCamera.transform.position, playerCamera.transform.forward * 10, Color.blue);
 		if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask))
